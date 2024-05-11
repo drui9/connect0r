@@ -2,10 +2,11 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Event, Thread, Lock
 from contextlib import contextmanager
 import socket
+import struct
 import time
 
 SOCKET_TIMEOUT = 10
-HEADER_LEN = 128
+HEADER_LEN = 4
 
 
 @contextmanager
@@ -22,13 +23,12 @@ def read_sock(socket):
   header = socket.recv(HEADER_LEN).replace(b'\0', b'').decode()
   if not header:
     return
-  header = int(header)
+  header = struct.unpack('!L', header)[1]
   return socket.recv(header)
 
 def write_sock(socket, data):
-  header = f'{len(data)}'.ljust(HEADER_LEN)
-  out = bytes(header, 'utf8') + data
-  return socket.send(out) == len(out), socket
+  if socket.send(struct.pack('!L', len(data)) > 0:
+    return socket.send(data)
 
 def listen_server(sender, terminate, sock, receivers):
   executor = ThreadPoolExecutor(max_workers=64)
